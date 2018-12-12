@@ -40,6 +40,14 @@ def handle_requests():
         layer.vsphere.log('Finished request for {}', request.unit_name)
     clients.mark_completed()
 
+@hook('config-changed')
+def update_config():
+    if not layer.vsphere.get_credentials():
+        layer.vsphere.log("WARN: config-changed hook did not find any config data, stopping...")
+        return
+    # Now that credentials have been updated on kv,
+    # we load that and update on the charm
+    handle_requests()
 
 @hook('stop')
 def cleanup():
